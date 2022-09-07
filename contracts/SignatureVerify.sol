@@ -17,12 +17,12 @@ contract SignatureVerify is Ownable {
 
     // constructor() Ownable() public {}
 
-    function report(bytes32 message, bytes calldata signature) external returns (address) {
+    function report(bytes memory message, bytes calldata signature) external returns (address) {
         address to = _rlpToTo(message);
-        console.log(to);
         if (_blacklistedContracts[to]) {
-            address from = message.recover(signature);
+            address from = keccak256(message).recover(signature);
             blacklistedUsers[from] = true;
+            console.log(from);
         }
         return to;
     }
@@ -31,7 +31,7 @@ contract SignatureVerify is Ownable {
         _blacklistedContracts[contractAddress] = true;
     }
 
-    function _rlpToTo(bytes32 message) private pure returns (address) {
+    function _rlpToTo(bytes memory message) private pure returns (address) {
         (bytes1 txType, bytes memory rlpBytes) = _splitBytesFromRLPTransaction(message);
         RLPReader.RLPItem[] memory ls = rlpBytes.toRlpItem().toList();
 
@@ -44,7 +44,7 @@ contract SignatureVerify is Ownable {
         }
     }
 
-    function _splitBytesFromRLPTransaction(bytes32 data) private pure returns (bytes1, bytes memory) {
+    function _splitBytesFromRLPTransaction(bytes memory data) private pure returns (bytes1, bytes memory) {
         bytes memory prefix = new bytes(1);
         bytes memory suffix = new bytes(data.length - 1);
         
@@ -57,7 +57,7 @@ contract SignatureVerify is Ownable {
 
         bytes1 txType = prefix[0];
         if (txType != 0x01 && txType != 0x02) {
-            return (0x00, abi.encodePacked(data));
+            return (0x00, data);
         }
         return (txType, suffix);
     }

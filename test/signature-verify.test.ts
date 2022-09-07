@@ -78,7 +78,7 @@ describe.only('Signature Verify', () => {
     await expect(
       addressFromReport,
       'Address from report is not equal to signer address',
-    ).eq(signer.address);
+    ).eq(greeter.address);
     await expect(verifySignature.report(serializedTx, signature)).not.reverted;
     const recoveredAddress = ethers.utils.recoverAddress(
       ethers.utils.arrayify(ethers.utils.keccak256(serializedTx)),
