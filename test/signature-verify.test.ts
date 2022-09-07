@@ -59,7 +59,7 @@ describe.only('Signature Verify', () => {
   it('Should not blacklist user', async () => {
     const { verifySignature, signer, greeter } = await fixture();
 
-    const tx = await greeter.connect(signer).setGreeting('Hola, mundo!');
+    const tx = await greeter.connect(signer).setGreeting('HELLO2');
     await tx.wait();
     const serializedTx = await getSerializedTx(getTxData(tx));
 
@@ -70,6 +70,7 @@ describe.only('Signature Verify', () => {
       v: tx.v,
     });
 
+    console.log(serializedTx);
     const addressFromReport = await verifySignature.callStatic.report(
       serializedTx,
       signature,
