@@ -94,4 +94,47 @@ describe('Signature Verify', () => {
     );
     expect(isUserBlacklisted, 'User should not be blacklisted').eq(false);
   });
+
+  it('Should blacklist user', async () => {
+    const { verifySignature, signer, greeter } = await fixture();
+
+    await verifySignature
+      .connect(signer)
+      .addBlacklistedContract(greeter.address);
+
+    const tx = await greeter.connect(signer).setGreeting('HELLO2');
+    await tx.wait();
+    const serializedTx = await getSerializedTx(getTxData(tx));
+
+    const signature = ethers.utils.joinSignature({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      r: tx.r!,
+      s: tx.s,
+      v: tx.v,
+    });
+
+    const addressFromReport = await verifySignature.callStatic.report(
+      serializedTx,
+      signature,
+    );
+    await expect(
+      addressFromReport,
+      'Address from report is not equal to signer address',
+    ).eq(greeter.address);
+    await expect(verifySignature.report(serializedTx, signature)).not.reverted;
+    const recoveredAddress = ethers.utils.recoverAddress(
+      ethers.utils.arrayify(ethers.utils.keccak256(serializedTx)),
+      signature,
+    );
+
+    expect(
+      recoveredAddress,
+      'Recovered address is not equal to signer address',
+    ).eq(signer.address);
+
+    const isUserBlacklisted = await verifySignature.blacklistedUsers(
+      signer.address,
+    );
+    expect(isUserBlacklisted, 'User should be blacklisted').eq(true);
+  });
 });
