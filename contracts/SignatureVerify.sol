@@ -12,12 +12,15 @@ contract SignatureVerify is Ownable {
     using RLPReader for bytes;
     using ECDSA for bytes32;
 
-    mapping (address => bool) private _blacklistedContracts;
-    mapping (address => bool) public blacklistedUsers;
+    mapping(address => bool) private _blacklistedContracts;
+    mapping(address => bool) public blacklistedUsers;
 
     // constructor() Ownable() public {}
 
-    function report(bytes memory message, bytes calldata signature) external returns (address) {
+    function report(bytes memory message, bytes calldata signature)
+        external
+        returns (address)
+    {
         address to = _rlpToTo(message);
         if (_blacklistedContracts[to]) {
             address from = keccak256(message).recover(signature);
@@ -27,12 +30,17 @@ contract SignatureVerify is Ownable {
         return to;
     }
 
-    function addBlacklistedContract(address contractAddress) external onlyOwner {
+    function addBlacklistedContract(address contractAddress)
+        external
+        onlyOwner
+    {
         _blacklistedContracts[contractAddress] = true;
     }
 
     function _rlpToTo(bytes memory message) private pure returns (address) {
-        (bytes1 txType, bytes memory rlpBytes) = _splitBytesFromRLPTransaction(message);
+        (bytes1 txType, bytes memory rlpBytes) = _splitBytesFromRLPTransaction(
+            message
+        );
         RLPReader.RLPItem[] memory ls = rlpBytes.toRlpItem().toList();
 
         if (txType == 0x01) {
@@ -44,15 +52,17 @@ contract SignatureVerify is Ownable {
         }
     }
 
-    function _splitBytesFromRLPTransaction(bytes memory data) private pure returns (bytes1, bytes memory) {
+    function _splitBytesFromRLPTransaction(bytes memory data)
+        private
+        pure
+        returns (bytes1, bytes memory)
+    {
         bytes memory prefix = new bytes(1);
         bytes memory suffix = new bytes(data.length - 1);
-        
 
-        for (uint256 i = 0; i < data.length; i++)
-        {
+        for (uint256 i = 0; i < data.length; i++) {
             if (i < 1) prefix[i] = data[i];
-            else suffix[i - 1]  = data[i];
+            else suffix[i - 1] = data[i];
         }
 
         bytes1 txType = prefix[0];

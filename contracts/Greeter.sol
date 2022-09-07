@@ -7,7 +7,7 @@ contract Greeter {
     constructor(string memory greeting) public {
         _greeting = greeting;
     }
-    
+
     function greet() public view returns (string memory) {
         return _greeting;
     }

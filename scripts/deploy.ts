@@ -19,10 +19,9 @@ async function main() {
 
   await greeter.deployed();
 
-  const tx = await greeter.setGreeting('HELLO2').then(i => i.wait());
+  const tx = await greeter.setGreeting('HELLO2').then((i) => i.wait());
 
-  console.log("tx: ", tx);
-
+  console.log('tx: ', tx);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
