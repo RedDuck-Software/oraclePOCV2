@@ -49,7 +49,7 @@ describe.only('Signature Verify', () => {
       (await greeterFactory.deploy('Hello, world!')).deployed(),
     ]);
 
-    return {
+    return {  
       verifySignature,
       greeter,
       signer,
@@ -75,11 +75,13 @@ describe.only('Signature Verify', () => {
       serializedTx,
       signature,
     );
+    
     await expect(
       addressFromReport,
       'Address from report is not equal to signer address',
     ).eq(greeter.address);
     await expect(verifySignature.report(serializedTx, signature)).not.reverted;
+
     const recoveredAddress = ethers.utils.recoverAddress(
       ethers.utils.arrayify(ethers.utils.keccak256(serializedTx)),
       signature,
