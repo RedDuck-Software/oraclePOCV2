@@ -73,16 +73,17 @@ describe('Greeter', function () {
 
     const rsTx:any = await ethers.utils.resolveProperties(txData)
     const raw = ethers.utils.serializeTransaction(rsTx); // returns RLP encoded tx
+    const rlpRaw = raw.replace('0x02', '0x');
+    await verify.report(rlpRaw);
+
     const msgHash = ethers.utils.keccak256(raw) // as specified by ECDSA
     const msgBytes = ethers.utils.arrayify(msgHash) // create binary hash
-    const addressFromContract = await verify.recover(msgHash, expandedSig.v!, expandedSig.r, expandedSig.s!);
     const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
     const recoveredAddress = ethers.utils.recoverAddress(msgBytes, signature);
 
     console.log("signer address: %s, recovered address: %s", signer.address, recoveredAddress);
     
     expect(recoveredAddress).to.equal(signer.address);
-    expect(addressFromContract).to.equal(signer.address);
 
     
   });
