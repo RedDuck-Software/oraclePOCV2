@@ -4,11 +4,11 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 contract SignatureVerify {
-    address blacklistContract;
-    mapping (address => bool) blacklistedUsers;
+    address _blacklistContract;
+    mapping (address => bool) _blacklistedUsers;
 
     constructor(address _blacklist){
-        blacklistContract = _blacklist;
+        _blacklistContract = _blacklist;
     }
 
     // function report(address to, uint256 gasLimit, uint8 _v, bytes32 _r, bytes32 _s,) public {

@@ -28,51 +28,55 @@ describe('Greeter', function () {
     await tx.wait()
     console.log("tx: ", tx);
 
-/*
-export type TransactionRequest = {
-    to?: string,
-    from?: string,
-    nonce?: BigNumberish,
+    const expandedSig = {
+      r: tx.r!,
+      s: tx.s,
+      v: tx.v
+     }
+     
+    const signature = ethers.utils.joinSignature(expandedSig)
+     
+    let txData : any;
+    switch (tx.type) {
+        case 0:
+            txData = {
+              gasLimit: tx.gasLimit,
+              value: tx.value,
+              gasPrice: tx.gasPrice,
+                nonce: tx.nonce,
+                data: tx.data,
+                chainId: tx.chainId,
+                to: tx.to
+            };
+            break;
+        case 2:
+            txData = {
+              value: tx.value,
+              nonce: tx.nonce,
+              gasLimit: tx.gasLimit,
+                data: tx.data,
+                to: tx.to,
+                chainId: tx.chainId,
+                type: 2,
+                maxFeePerGas: tx.maxFeePerGas,
+                maxPriorityFeePerGas: tx.maxPriorityFeePerGas
+            }
+            break;
+        default:
+            throw "Unsupported tx type";
+    }
 
-    gasLimit?: BigNumberish,
-    gasPrice?: BigNumberish,
+    const rsTx:any = await ethers.utils.resolveProperties(txData)
+    const raw = ethers.utils.serializeTransaction(rsTx) // returns RLP encoded tx
+    const msgHash = ethers.utils.keccak256(raw) // as specified by ECDSA
+    const msgBytes = ethers.utils.arrayify(msgHash) // create binary hash
+    const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
+    const recoveredAddress = ethers.utils.recoverAddress(msgBytes, signature);
 
-    data?: BytesLike,
-    value?: BigNumberish,
-    chainId?: number
-
-    type?: number;
-    accessList?: AccessListish;
-
-    maxPriorityFeePerGas?: BigNumberish;
-    maxFeePerGas?: BigNumberish;
-
-    customData?: Record<string, any>;
-    ccipReadEnabled?: boolean;
-}
-*/
-    const transactionData = 
-    { 
-      to: tx.to,
-      value: tx.value,
-      data: tx.data,
-      gasLimit: tx.gasLimit,
-      nonce: tx.nonce,
-      type: 2,
-      chainId: tx.chainId
-    };
+    console.log("signer address: %s, recovered address: %s", signer.address, recoveredAddress);
     
+    expect(recoveredAddress).to.equal(signer.address);
     
-    let signatureManualFull = await signer.signTransaction(transactionData);
-    let signatureManualSplit = ethers.utils.splitSignature(signatureManualFull);
-    
-    console.log("LOG signatureManual:", signatureManualSplit);
-
-    expect(signatureManualSplit.v).to.equal(tx.v);
-    expect(signatureManualSplit.r).to.equal(tx.r);
-    expect(signatureManualSplit.s).to.equal(tx.s);
-  
-
     
   });
   it('TEST', async () => {
