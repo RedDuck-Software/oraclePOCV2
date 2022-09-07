@@ -4,15 +4,20 @@ import { ethers } from 'hardhat';
 import { chainIds } from '../config';
 
 describe('Greeter', function () {
-  it("Should return the new greeting once it's changed", async function () {
-    let privateKey = "77797a2dc15aada1116394fd770dd56374524a5f05fb13f46073b9cab2e98ddc"; // zelensky PK
+  it.only("Should return the new greeting once it's changed", async function () {
+    const privateKey =
+      '77797a2dc15aada1116394fd770dd56374524a5f05fb13f46073b9cab2e98ddc'; // zelensky PK
     const [defaultHardhatSig] = await ethers.getSigners()
     const signer = new Wallet(privateKey, ethers.provider)
 
-    await defaultHardhatSig.sendTransaction( { value:ethers.utils.parseEther("100"), to: signer.address})
-    const Greeter = await ethers.getContractFactory('Greeter',signer);
+    await defaultHardhatSig.sendTransaction({ value:ethers.utils.parseEther("100"), to: signer.address})
+    const Greeter = await ethers.getContractFactory('Greeter', signer);
     const greeter = await Greeter.deploy('Hello, world!');
     await greeter.deployed();
+
+    const Verify = await ethers.getContractFactory('SignatureVerify', signer);
+    const verify = await Verify.deploy(ethers.constants.AddressZero);
+    await verify.deployed();
 
     expect(await greeter.greet()).to.equal('Hello, world!');
 
@@ -67,16 +72,18 @@ describe('Greeter', function () {
     }
 
     const rsTx:any = await ethers.utils.resolveProperties(txData)
-    const raw = ethers.utils.serializeTransaction(rsTx) // returns RLP encoded tx
+    const raw = ethers.utils.serializeTransaction(rsTx); // returns RLP encoded tx
     const msgHash = ethers.utils.keccak256(raw) // as specified by ECDSA
     const msgBytes = ethers.utils.arrayify(msgHash) // create binary hash
+    const addressFromContract = await verify.recover(msgHash, expandedSig.v!, expandedSig.r, expandedSig.s!);
     const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
     const recoveredAddress = ethers.utils.recoverAddress(msgBytes, signature);
 
     console.log("signer address: %s, recovered address: %s", signer.address, recoveredAddress);
     
     expect(recoveredAddress).to.equal(signer.address);
-    
+    expect(addressFromContract).to.equal(signer.address);
+
     
   });
   it('TEST', async () => {

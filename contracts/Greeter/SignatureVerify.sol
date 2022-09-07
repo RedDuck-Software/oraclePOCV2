@@ -11,6 +11,12 @@ contract SignatureVerify {
         _blacklistContract = _blacklist;
     }
 
+    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
+        return ecrecover(hash, v, r, s);
+    }
+
+    // function serializeTransaction(uint8 v, bytes32 r, bytes32 s, uint nonce, uint maxPriorityFeePerGas, uint maxFeePerGas, uint gasLimit, address to, uint value)
+
     // function report(address to, uint256 gasLimit, uint8 _v, bytes32 _r, bytes32 _s,) public {
     //     recoverMessage(to, gasLimit)
     // }
