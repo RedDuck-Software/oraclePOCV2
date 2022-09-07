@@ -37,7 +37,7 @@ const getSerializedTx = async (txData: ReturnType<typeof getTxData>) =>
     await ethers.utils.resolveProperties(<any>txData),
   );
 
-describe.only('Signature Verify', () => {
+describe('Signature Verify', () => {
   const fixture = async () => {
     const [signer] = await ethers.getSigners();
     const [verifyFactory, greeterFactory] = await Promise.all([
@@ -70,7 +70,6 @@ describe.only('Signature Verify', () => {
       v: tx.v,
     });
 
-    console.log(serializedTx);
     const addressFromReport = await verifySignature.callStatic.report(
       serializedTx,
       signature,
@@ -89,7 +88,6 @@ describe.only('Signature Verify', () => {
       recoveredAddress,
       'Recovered address is not equal to signer address',
     ).eq(signer.address);
-    console.log(recoveredAddress);
 
     const isUserBlacklisted = await verifySignature.blacklistedUsers(
       signer.address,
