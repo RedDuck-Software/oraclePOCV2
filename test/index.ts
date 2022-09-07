@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { Wallet } from 'ethers';
 import { ethers } from 'hardhat';
 import { chainIds } from '../config';
+import keccak256 from 'keccak256';
 
 describe('Greeter', function () {
   it.only("Should return the new greeting once it's changed", async function () {
@@ -73,17 +74,18 @@ describe('Greeter', function () {
 
     const rsTx:any = await ethers.utils.resolveProperties(txData)
     const raw = ethers.utils.serializeTransaction(rsTx); // returns RLP encoded tx
-    const msgHash = ethers.utils.keccak256(raw) // as specified by ECDSA
+    const msgHash = keccak256(raw); // as specified by ECDSA
     const msgBytes = ethers.utils.arrayify(msgHash) // create binary hash
-    const addressFromContract = await verify.recover(msgHash, expandedSig.v!, expandedSig.r, expandedSig.s!);
+    const recoverAddressFromContract = await verify.recover2(msgHash, signature);
     const recoveredPubKey = ethers.utils.recoverPublicKey(msgBytes, signature);
-    const recoveredAddress = ethers.utils.recoverAddress(msgBytes, signature);
+    const recoveredAddressFromEthers = ethers.utils.recoverAddress(msgBytes, signature);
 
-    console.log("signer address: %s, recovered address: %s", signer.address, recoveredAddress);
+    console.log("address from contract:", recoverAddressFromContract);
+    //console.log("signer address: %s, recovered address: %s", signer.address, recoveredAddress);
     
-    expect(recoveredAddress).to.equal(signer.address);
-    expect(addressFromContract).to.equal(signer.address);
-
+    expect(recoveredAddressFromEthers).to.equal(signer.address);
+    expect(recoverAddressFromContract).to.equal(signer.address);
+    expect(recoverAddressFromContract).to.equal(recoveredAddressFromEthers);
     
   });
   it('TEST', async () => {
