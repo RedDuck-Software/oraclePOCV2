@@ -1,13 +1,14 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.6.12;
+pragma solidity 0.8.10;
 
 import "hardhat/console.sol";
-import "solidity-rlp/contracts/RLPReader.sol";
 
+import "./utils/RLPReader.sol";
 import "./utils/ECDSA.sol";
 import "./utils/Ownable.sol";
+import "./utils/IPermissionOracle.sol";
 
-contract SignatureVerify is Ownable {
+contract SignatureVerify is Ownable, IPermissionOracle {
     using RLPReader for RLPReader.RLPItem;
     using RLPReader for bytes;
     using ECDSA for bytes32;
@@ -70,5 +71,14 @@ contract SignatureVerify is Ownable {
             return (0x00, data);
         }
         return (txType, suffix);
+    }
+
+    function isGranted(
+        address _where,
+        address _who,
+        bytes32 _permissionId,
+        bytes calldata _data
+    ) override external view returns (bool allowed) {
+        allowed = !blacklistedUsers[_who];
     }
 }

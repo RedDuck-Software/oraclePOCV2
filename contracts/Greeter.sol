@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.6.12;
+pragma solidity 0.8.10;
 
 contract Greeter {
     string private _greeting;
