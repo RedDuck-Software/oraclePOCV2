@@ -78,7 +78,7 @@ contract SignatureVerify is Ownable, IPermissionOracle {
         address _who,
         bytes32 _permissionId,
         bytes calldata _data
-    ) override external view returns (bool allowed) {
+    ) external view override returns (bool allowed) {
         allowed = !blacklistedUsers[_who];
     }
 }
