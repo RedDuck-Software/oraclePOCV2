@@ -1,22 +1,18 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
-
-import "hardhat/console.sol";
+pragma solidity 0.8.10;
 
 contract Greeter {
     string private _greeting;
 
-    constructor(string memory greeting) {
-        console.log("Deploying a Greeter with greeting:", greeting);
+    constructor(string memory greeting) public {
         _greeting = greeting;
     }
-    
+
     function greet() public view returns (string memory) {
         return _greeting;
     }
 
     function setGreeting(string memory greeting) public {
-        console.log("Changing greeting from '%s' to '%s'", _greeting, greeting);
         _greeting = greeting;
     }
 }
