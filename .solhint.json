@@ -1,7 +1,7 @@
 {
   "extends": "solhint:recommended",
   "rules": {
-    "no-unused-vars": "warning",
+    "no-unused-vars": "off",
     "compiler-version": ["error", "0.8.10"],
     "const-name-snakecase": "error",
     "contract-name-camelcase": "error",
